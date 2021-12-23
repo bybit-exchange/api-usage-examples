@@ -1,16 +1,24 @@
 const crypto = require('crypto');
+const axios = require('axios')
+url='https://api-testnet.bybit.com/v2/private/order/create';
 
-var apiKey = "";
-var secret = "";
-var timestamp = Date.now();
+var apiKey = "xxxx";
+var secret = "xxxx";
+var timestamp = Date.now().toString();
 var params = {
-	"order_id":"876b0ac1-bafe-4110-b404-6a7c8211a6d9",
 	"symbol":"BTCUSD",
+	"side":"Buy",
+	"qty":"1",
+	"price":"10000",
+	"order_type":"Limit",
 	"timestamp":timestamp,
 	"api_key" : apiKey,
+	"time_in_force":"GoodTillCancel"
 };
 
-console.log(getSignature(params, secret));
+params["sign"]=getSignature(params,secret);
+
+axios.post(url,params).then(res => console.log(res.data)).catch(err=>console.log(err));
 
 function getSignature(parameters, secret) {
 	var orderedParams = "";
