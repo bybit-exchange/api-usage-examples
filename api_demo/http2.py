@@ -14,7 +14,9 @@ api_key = ""
 api_secret = ""
 
 
-url = "https://api.bytick.com/spot/v1/order"
+# Note that while api.bybit.com does support HTTP/2 E2E,
+# api.bytick.com does not
+url = "https://api.bybit.com/spot/v1/order"
 
 
 def auth():
