@@ -53,8 +53,8 @@ def connWS():
 		on_open=on_open
 	)
 	ws.run_forever(
-		http_proxy_host='127.0.0.1',
-		http_proxy_port=1087,
+		#http_proxy_host='127.0.0.1',
+		#http_proxy_port=1087,
 		ping_interval=15,
 		ping_timeout=10
 	)
