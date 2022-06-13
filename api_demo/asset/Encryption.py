@@ -3,19 +3,17 @@ import hmac
 import json
 import requests
 import urllib3
-def create(apiKey,secretKey,symbol,side,order_type,qty,price):
+from random import randrange
+import time
+def transfer(apiKey,secretKey,coin,fromAccountType,toAccountType,amount,transferId):
     params = {
-        "side": side,
-        "symbol": symbol,
-        "order_type": order_type,
-        "qty": qty,
-        "price": price,
-        "time_in_force": "PostOnly",
+        "fromAccountType": fromAccountType,
+        "toAccountType": toAccountType,
+        "coin": coin,
+        "amount": amount,
+        "transferId": transferId,
         "api_key": apiKey,
-        "timestamp": "1542782900000",
-        "recv_window": "93800000000",
-        "reduce_only":False,
-        "close_on_trigger":False,
+        "timestamp": str(int(time.time()*1000))
     }
     sign = ''
     for key in sorted(params.keys()):
@@ -34,22 +32,15 @@ def create(apiKey,secretKey,symbol,side,order_type,qty,price):
     sign_real = {
         "sign": signature
     }
-    #url = 'https://api-testnet.bybit.com/private/linear/order/create'
-    url = 'https://api.bybit.com/private/linear/order/create'
+    url = 'https://api.bybit.com/asset/v1/private/transfer'
     headers = {"Content-Type": "application/json"}
     body = dict(params,**sign_real)
     urllib3.disable_warnings()
-    s = requests.session()
-    s.keep_alive = False
     response = requests.post(url, data=json.dumps(body), headers=headers,verify=False)
     print(response.text)
 def main():
-    apiKey = "1wE1ciGhCIKvwN4G8s"
-    secret = b"efVFoOta02XaUQQ9cW0Lp6Nn950m1JqLEZ4Q"
-    #create(apiKey, secret,'BTCUSDT','Buy','Market','0.001')
-    #create(apiKey, secret,'ETHUSDT','Buy','Market','0.01')
-    create(apiKey, secret,'UNIUSDT','Buy','Limit','0.1','10')
-    create(apiKey, secret,'CHZUSDT','Buy','Limit','1','0.1')
-    create(apiKey, secret,'ETHUSDT','Buy','Limit','0.01','1000')
+    apiKey = "xxxx"
+    secret = b"xxxx"
+    transfer(apiKey, secret,'USDT','CONTRACT','SPOT','0.001','21ff1b44-2d5d-4293-913d-4545c5ad'+str(randrange(1000,9999)))
 if __name__ == '__main__':
     main()
