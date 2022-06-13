@@ -40,7 +40,7 @@ def transfer(apiKey,secretKey,coin,fromAccountType,toAccountType,amount,transfer
     print(response.text)
 def main():
     apiKey = "xxxx"
-    secret = b"xxxx"
+    secret = b"xxxxx"
     transfer(apiKey, secret,'USDT','CONTRACT','SPOT','0.001','21ff1b44-2d5d-4293-913d-4545c5ad'+str(randrange(1000,9999)))
 if __name__ == '__main__':
     main()
