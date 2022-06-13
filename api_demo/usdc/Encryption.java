@@ -75,7 +75,7 @@ public class Encryption {
     }
 
     /**
-     * GET: get unfilled/partial filler order
+     * POST: query unfilled/partial filler order
      * @throws NoSuchAlgorithmException
      * @throws InvalidKeyException
      */
