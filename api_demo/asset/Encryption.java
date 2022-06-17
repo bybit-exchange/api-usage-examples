@@ -1,4 +1,4 @@
-package com.bybit.techops.futures;
+package com.bybit.techops.asset;
 
 import com.alibaba.fastjson.JSON;
 import okhttp3.*;
@@ -11,7 +11,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 
 /**
- * a sample for how to create&get an active order for USDT Perpetual
+ * a sample for how to create&get an active order for Account asset
  */
 public class Encryption {
     final static String API_KEY = "your api key";
@@ -22,35 +22,29 @@ public class Encryption {
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeyException {
         Encryption encryptionTest = new Encryption();
 
-//        encryptionTest.placeActiveOrder();
-
-        encryptionTest.getActiveOrder();
+//        encryptionTest.creatInternalTransfer();
+        encryptionTest.queryTransferList();
     }
 
     /**
-     * POST: place an active linear perpetual order
+     * POST: create an internal transfer between different accounts
      */
-    private void placeActiveOrder() throws NoSuchAlgorithmException, InvalidKeyException {
+    private void creatInternalTransfer() throws NoSuchAlgorithmException, InvalidKeyException {
         Map<String, Object> map = new TreeMap(
-            new Comparator<String>() {
-                @Override
-                // sort paramKey in A-Z
-                public int compare(String o1, String o2) {
-                    return o1.compareTo(o2);
-            }
-        });
+                new Comparator<String>() {
+                    @Override
+                    // sort paramKey in A-Z
+                    public int compare(String o1, String o2) {
+                        return o1.compareTo(o2);
+                    }
+                });
         map.put("api_key", API_KEY);
         map.put("timestamp", TIMESTAMP);
-        map.put("side", "Buy");
-        map.put("symbol", "EOSUSDT");
-        map.put("order_type", "Limit");
-        map.put("qty", "50");
-        map.put("price", "1.97");
-        map.put("time_in_force", "GoodTillCancel");
-        map.put("take_profit", "1.6");
-        map.put("stop_loss", "0.8");
-        map.put("reduce_only", false);
-        map.put("close_on_trigger", false);
+        map.put("transfer_id", UUID.randomUUID());
+        map.put("coin", "USDT");
+        map.put("amount", "100");
+        map.put("from_account_type", "SPOT");
+        map.put("to_account_type", "CONTRACT");
         map.put("recv_window", RECV_WINDOW);
         String signature = genSign(map);
         map.put("sign", signature);
@@ -61,7 +55,7 @@ public class Encryption {
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody body= RequestBody.create(mediaType, jsonMap);
         Request request = new Request.Builder()
-                .url("https://api-testnet.bybit.com/private/linear/order/create")
+                .url("https://api-testnet.bybit.com/asset/v1/private/transfer")
                 .method("post", body)
                 .addHeader("Content-Type", "application/json")
                 .build();
@@ -76,11 +70,11 @@ public class Encryption {
     }
 
     /**
-     * GET: get the active order list
+     * GET: query transfer list
      * @throws NoSuchAlgorithmException
      * @throws InvalidKeyException
      */
-    public void getActiveOrder() throws NoSuchAlgorithmException, InvalidKeyException {
+    public void queryTransferList() throws NoSuchAlgorithmException, InvalidKeyException {
         Map<String, Object> map = new TreeMap<>(new Comparator<String>() {
             @Override
             public int compare(String s1, String s2) {
@@ -89,8 +83,6 @@ public class Encryption {
         });
         map.put("api_key", API_KEY);
         map.put("timestamp", TIMESTAMP);
-        map.put("symbol", "BITUSDT");
-        map.put("order_status", "Created,New,Filled,Cancelled");
         String signature = genSign(map);
         map.put("sign", signature);
         Set<Map.Entry<String, Object>> entries = map.entrySet();
@@ -105,7 +97,7 @@ public class Encryption {
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
         Request request = new Request.Builder()
-                .url("https://api-testnet.bybit.com/private/linear/order/list?" + sb)
+                .url("https://api-testnet.bybit.com/asset/v1/private/transfer/list?" + sb)
                 .get()
                 .build();
         Call call = client.newCall(request);
@@ -132,9 +124,9 @@ public class Encryption {
         while (iter.hasNext()) {
             String key = iter.next();
             sb.append(key)
-                .append("=")
-                .append(params.get(key))
-                .append("&");
+                    .append("=")
+                    .append(params.get(key))
+                    .append("&");
         }
         sb.deleteCharAt(sb.length() - 1);
         Mac sha256_HMAC = Mac.getInstance("HmacSHA256");

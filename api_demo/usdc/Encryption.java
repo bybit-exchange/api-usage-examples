@@ -23,7 +23,7 @@ import java.util.Map;
 public class Encryption {
     final static String API_KEY = "your api key";
     final static String API_SECRET = "your api secret";
-    static String timestamp = Long.toString(ZonedDateTime.now().toInstant().toEpochMilli());
+    final static String TIMESTAMP = Long.toString(ZonedDateTime.now().toInstant().toEpochMilli());
     final static String RECV_WINDOW = "10000";
 
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeyException {
@@ -60,7 +60,7 @@ public class Encryption {
                 .addHeader("X-BAPI-API-KEY", API_KEY)
                 .addHeader("X-BAPI-SIGN", signature)
                 .addHeader("X-BAPI-SIGN-TYPE", "2")
-                .addHeader("X-BAPI-TIMESTAMP", timestamp)
+                .addHeader("X-BAPI-TIMESTAMP", TIMESTAMP)
                 .addHeader("X-BAPI-RECV-WINDOW", RECV_WINDOW)
                 .addHeader("Content-Type", "application/json")
                 .build();
@@ -96,7 +96,7 @@ public class Encryption {
                 .addHeader("X-BAPI-API-KEY", API_KEY)
                 .addHeader("X-BAPI-SIGN", signature)
                 .addHeader("X-BAPI-SIGN-TYPE", "2")
-                .addHeader("X-BAPI-TIMESTAMP", timestamp)
+                .addHeader("X-BAPI-TIMESTAMP", TIMESTAMP)
                 .addHeader("X-BAPI-RECV-WINDOW", RECV_WINDOW)
                 .addHeader("Content-Type", "application/json")
                 .build();
