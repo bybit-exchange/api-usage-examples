@@ -16,7 +16,7 @@ import java.util.*;
 public class Encryption {
     final static String API_KEY = "your api key";
     final static String API_SECRET = "your api secret";
-    static String timestamp = Long.toString(ZonedDateTime.now().toInstant().toEpochMilli());
+    final static String TIMESTAMP = Long.toString(ZonedDateTime.now().toInstant().toEpochMilli());
     final static String RECV_WINDOW = "10000";
 
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeyException {
@@ -40,7 +40,7 @@ public class Encryption {
             }
         });
         map.put("api_key", API_KEY);
-        map.put("timestamp", timestamp);
+        map.put("timestamp", TIMESTAMP);
         map.put("side", "Buy");
         map.put("symbol", "EOSUSDT");
         map.put("order_type", "Limit");
@@ -88,7 +88,7 @@ public class Encryption {
             }
         });
         map.put("api_key", API_KEY);
-        map.put("timestamp", timestamp);
+        map.put("timestamp", TIMESTAMP);
         map.put("symbol", "BITUSDT");
         map.put("order_status", "Created,New,Filled,Cancelled");
         String signature = genSign(map);

@@ -16,7 +16,7 @@ public class Encryption {
     final static String API_KEY = "your api key";
     final static String API_SECRET = "your api secret";
     final static String RECV_WINDOW = "10000";
-    static String timestamp = Long.toString(ZonedDateTime.now().toInstant().toEpochMilli());
+    final static String TIMESTAMP = Long.toString(ZonedDateTime.now().toInstant().toEpochMilli());
 
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeyException {
         Encryption encryptionTest = new Encryption();
@@ -39,7 +39,7 @@ public class Encryption {
             }
         });
         map.put("api_key", API_KEY);
-        map.put("timestamp", timestamp);
+        map.put("timestamp", TIMESTAMP);
         map.put("side", "Buy");
         map.put("symbol", "DOGEUSDT");
         map.put("type", "Market");
@@ -80,7 +80,7 @@ public class Encryption {
             }
         });
         map.put("api_key", API_KEY);
-        map.put("timestamp", timestamp);
+        map.put("timestamp", TIMESTAMP);
         map.put("recvWindow", RECV_WINDOW);
         map.put("orderLinkId", "spot30001");
         String query = genQueryString(map);
