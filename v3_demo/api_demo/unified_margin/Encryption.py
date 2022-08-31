@@ -40,22 +40,22 @@ endpoint="/unified/v3/private/order/create"
 method="POST"
 orderLinkId=uuid.uuid4().hex
 params='{"symbol":"BTCUSDT","orderType":"Limit","side":"Buy","qty":"0.001","price":"10000","timeInForce":"GoodTillCancel","category":"linear","orderLinkId": "' + orderLinkId + '"}'
-HTTP_Request(url,method,params,"Create")
+HTTP_Request(endpoint,method,params,"Create")
 
 #Get unfilled Orders
 endpoint="/unified/v3/private/order/unfilled-orders"
 method="GET"
 params='category=linear&symbol=BTCUSDT'
-HTTP_Request(url,method,params,"UnFilled")
+HTTP_Request(endpoint,method,params,"UnFilled")
 
 #Get Order List
 endpoint="/unified/v3/private/order/list"
 method="GET"
 params="symbol=BTCUSDT&category=linear&orderLinkId="+orderLinkId
-HTTP_Request(url,method,params,"List")
+HTTP_Request(endpoint,method,params,"List")
 
 #Cancel Order
 endpoint="/unified/v3/private/order/cancel"
 method="POST"
 params='{"symbol": "ETHUSDT","category":"linear","orderLinkId": "'+orderLinkId+'"}'
-HTTP_Request(url,method,params,"Cancel")
+HTTP_Request(endpoint,method,params,"Cancel")
