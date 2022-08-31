@@ -27,7 +27,7 @@ def HTTP_Request(endPoint,method,payload,Info):
     else:
         response = httpClient.request(method, url+endpoint+"?"+payload, headers=headers)
     print(response.text)
-    print(Info + " Response Time : " + str(response.elapsed))
+    print(Info + " Elapsed Time : " + str(response.elapsed))
 
 def genSignature(payload):
     param_str= str(time_stamp) + api_key + recv_window + payload
