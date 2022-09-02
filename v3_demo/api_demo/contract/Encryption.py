@@ -57,5 +57,5 @@ HTTP_Request(endpoint,method,params,"List")
 #Cancel Order
 endpoint="/contract/v3/private/order/cancel"
 method="POST"
-params='{"symbol": "ETHUSDT","orderLinkId": "'+orderLinkId+'"}'
+params='{"symbol": "BTCUSDT","orderLinkId": "'+orderLinkId+'"}'
 HTTP_Request(endpoint,method,params,"Cancel")
