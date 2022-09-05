@@ -1,53 +1,55 @@
+import requests
+import time
 import hashlib
 import hmac
-import json
-import requests
-import urllib3
-import time
-from urllib.parse import quote_plus
+import uuid
 
-def create_order(apiKey,secretKey,symbol,side,order_type,qty,price):
-    timestamp = int(time.time() * 10 ** 3)
-    url = 'https://api-testnet.bybit.com/spot/v1/order'
-    headers = {}
-    method="POST"
-    params = {
-        "side": side,
-        "symbol": symbol,
-        "type": order_type,
-        "qty": qty,
-        "price": price,
-        "time_in_force": "GoodTillCancel",
-        "api_key": apiKey,
-        "timestamp": str(timestamp),
-        "recv_window": "5000"
+api_key='XXXXXXXX'
+secret_key='XXXXXXXX'
+httpClient=requests.Session()
+recv_window=str(5000)
+url="https://api-testnet.bybit.com" # Testnet endpoint
+
+def HTTP_Request(endPoint,method,payload,Info):
+    global time_stamp
+    time_stamp=str(int(time.time() * 10 ** 3))
+    signature=genSignature(params)
+    headers = {
+        'X-BAPI-API-KEY': api_key,
+        'X-BAPI-SIGN': signature,
+        'X-BAPI-SIGN-TYPE': '2',
+        'X-BAPI-TIMESTAMP': time_stamp,
+        'X-BAPI-RECV-WINDOW': recv_window,
+        'Content-Type': 'application/json'
     }
-    param_str = ''
-    for key in sorted(params.keys()):
-        v = params[key]
-        if isinstance(params[key], bool):
-            if params[key]:
-                v = 'true'
-            else :
-                v = 'false'
-        param_str += key + '=' + v + '&'
-    param_str = param_str[:-1]
-    hash = hmac.new(secretKey, param_str.encode("utf-8"), hashlib.sha256)
-    signature = hash.hexdigest()
-    sign_real = {
-        "sign": signature
-    }
-    param_str = quote_plus(param_str, safe="=&")
-    full_param_str = f"{param_str}&sign={sign_real['sign']}"
-    urllib3.disable_warnings()
-    s = requests.session()
-    s.keep_alive = False
-    response = requests.request(method, f"{url}?{full_param_str}",headers=headers, verify=False)
+    if(method=="POST"):
+        response = httpClient.request(method, url+endpoint, headers=headers, data=payload)
+    else:
+        response = httpClient.request(method, url+endpoint+"?"+payload, headers=headers)
     print(response.text)
-def main():
-    apiKey = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-    secret = b"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-    create_order(apiKey, secret,'BITUSDT','Buy','Limit','10','1')
-    create_order(apiKey, secret,'BITUSDT','Buy','Market','10','0') #for market order, we are just passing the price as 0
-if __name__ == '__main__':
-    main()
+    print(Info + " Response Time : " + str(response.elapsed))
+
+def genSignature(payload):
+    param_str= str(time_stamp) + api_key + recv_window + payload
+    hash = hmac.new(bytes(secret_key, "utf-8"), param_str.encode("utf-8"),hashlib.sha256)
+    signature = hash.hexdigest()
+    return signature
+
+#Create Order
+endpoint="/spot/v3/private/order"
+method="POST"
+orderLinkId=uuid.uuid4().hex
+params='{"symbol":"BTCUSDT","orderType":"Limit","side":"Buy","orderLinkId":"' +  orderLinkId + '","orderQty":"0.001","orderPrice":"10000","timeInForce":"GTC"}';
+HTTP_Request(endpoint,method,params,"Create")
+
+#Get Order List
+endpoint="/spot/v3/private/order"
+method="GET"
+params='orderLinkId=' + orderLinkId
+HTTP_Request(endpoint,method,params,"List")
+
+#Cancel Order
+endpoint="/spot/v3/private/cancel-order"
+method="POST"
+params='{"orderLinkId":"' +  orderLinkId +'"}'
+HTTP_Request(endpoint,method,params,"Cancel")
