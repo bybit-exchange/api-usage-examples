@@ -2,45 +2,31 @@ import json
 import logging
 import time
 from datetime import datetime
-
 import websocket
 
 logging.basicConfig(filename='logfile_wrapper.log', level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
 
-#now = datetime.now() #dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-#print("date and time =", dt_string)
-prev_send_time = int(time.time() * 1000)
-topic = "orderBookL2_25.BTCUSD"
-
-trade_results = {}
-size = {}
-size_usdt = {}
-
+topic = "orderbook.25.BTCUSDT"
 
 def on_message(ws, message):
     data = json.loads(message)
     print(data)
-
 
 def on_error(ws, error):
     print('we got error')
     print(error)
     print('print error complete')
 
-
 def on_close(ws):
     print("### about to close please don't close ###")
-
 
 def on_open(ws):
     print('opened')
     ws.send(json.dumps({"op": "subscribe", "args": [topic]}))
 
-
 def on_pong(ws, *data):
     print('pong received')
-
 
 def on_ping(ws, *data):
     now = datetime.now()
@@ -48,10 +34,9 @@ def on_ping(ws, *data):
     print("date and time =", dt_string)
     print('ping received')
 
-
 def connWS():
     ws = websocket.WebSocketApp(
-        "wss://stream.bybit.com/realtime",
+        "wss://stream-testnet.bybit.com/contract/usdt/public/v3",
         on_message=on_message,
         on_error=on_error,
         on_close=on_close,
@@ -68,5 +53,5 @@ def connWS():
 
 
 if __name__ == "__main__":
-    websocket.enableTrace(True)
+    #websocket.enableTrace(True)
     connWS()
