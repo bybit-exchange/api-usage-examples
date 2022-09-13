@@ -54,8 +54,6 @@ const orderLinkId = crypto.randomBytes(16).toString("hex");
 var data = '{"symbol":"BTCUSDT","orderType":"Limit","side":"Buy","orderLinkId":"' +  orderLinkId + '","orderQty":"0.001","orderPrice":"10000","timeInForce":"GTC"}';
 await http_request(endpoint,"POST",data,"Create");
 
-//await new Promise(resolve => setTimeout(resolve, 700));
-
 //Get Order List
 endpoint="/spot/v3/private/order"
 var data = 'orderLinkId=' + orderLinkId ;
