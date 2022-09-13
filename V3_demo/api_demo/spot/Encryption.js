@@ -49,7 +49,7 @@ async function http_request(endpoint,method,data,Info) {
 //Create Order
 async function TestCase()
 {
-endpoint="/spot/v3/private/order    "
+endpoint="/spot/v3/private/order"
 const orderLinkId = crypto.randomBytes(16).toString("hex");
 var data = '{"symbol":"BTCUSDT","orderType":"Limit","side":"Buy","orderLinkId":"' +  orderLinkId + '","orderQty":"0.001","orderPrice":"10000","timeInForce":"GTC"}';
 await http_request(endpoint,"POST",data,"Create");
