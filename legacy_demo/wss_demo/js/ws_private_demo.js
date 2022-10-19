@@ -4,8 +4,8 @@ var crypto = require('crypto');
 var endpoint = "wss://stream-testnet.bybit.com/realtime"
 console.log('attempting to connect to WebSocket %j', endpoint);
 var client = new WebSocket(endpoint);
-const apiKey="U7OUiyDdJPVeU7fcxn";
-const apiSecret="6o2s1eOnkViVLfyg3zii1k0kf56j5aBNkLRn";
+const apiKey="XXXXXXXX";
+const apiSecret="XXXXXXXX";
 client.on('open', function () {
 	console.log('"open" event!');
 	console.log('WebSocket Client Connected');

@@ -6,8 +6,8 @@ def get_signature(param_str, secret)
   OpenSSL::HMAC.hexdigest('sha256', secret, param_str)
 end
 
-api_key = "B2Rou0PLPpGqcU0Vu2"
-secret = "t7T0YlFnYXk0Fx3JswQsDrViLg1Gh3DUU5Mr"
+api_key = "XXXXXXXX"
+secret = "XXXXXXXX"
 
 params = {
   symbol: "BTCUSD",
