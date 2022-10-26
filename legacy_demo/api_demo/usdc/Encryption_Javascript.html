@@ -1,0 +1,38 @@
+<html>
+<head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/hmac-sha256.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/enc-base64.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+key="xxxx"
+secret="xxxx"
+ts=Date.now().toString();
+postBody={"category":"OPTION"};
+recvWindow=5000;
+var query_string=ts+key+recvWindow.toString()+JSON.stringify(postBody)
+var sign = CryptoJS.HmacSHA256(query_string, secret).toString();
+var settings = {
+  "url": "https://api.bybit.com/option/usdc/openapi/private/v1/query-position",
+  "method": "POST",
+  "timeout": 0,
+  "headers": {
+    "Content-Type": "application/json",
+    "X-BAPI-API-KEY": key,
+    "X-BAPI-SIGN":sign,
+    "X-BAPI-TIMESTAMP":parseInt(ts),
+    "X-BAPI-RECV-WINDOW":recvWindow
+  },
+	"dataType":"json",
+	"data":JSON.stringify(postBody)
+};
+$.ajax(settings).done(function (response) {
+  console.log(response);
+});
+</script>
+</head>
+<body>
+Hello World
+</iframe>
+</body>
+</html>
