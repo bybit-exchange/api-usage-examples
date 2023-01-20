@@ -13,7 +13,7 @@ url="https://api-testnet.bybit.com" # Testnet endpoint
 def HTTP_Request(endPoint,method,payload,Info):
     global time_stamp
     time_stamp=str(int(time.time() * 10 ** 3))
-    signature=genSignature(params)
+    signature=genSignature(payload)
     headers = {
         'X-BAPI-API-KEY': api_key,
         'X-BAPI-SIGN': signature,
