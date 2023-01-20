@@ -13,7 +13,7 @@ url="https://api-testnet.bybit.com" # Testnet endpoint
 def HTTP_Request(endPoint,method,payload,Info):
     global time_stamp
     time_stamp=str(int(time.time() * 10 ** 3))
-    signature=genSignature(params)
+    signature=genSignature(payload)
     headers = {
         'X-BAPI-API-KEY': api_key,
         'X-BAPI-SIGN': signature,
@@ -23,9 +23,9 @@ def HTTP_Request(endPoint,method,payload,Info):
         'Content-Type': 'application/json'
     }
     if(method=="POST"):
-        response = httpClient.request(method, url+endpoint, headers=headers, data=payload)
+        response = httpClient.request(method, url+endPoint, headers=headers, data=payload)
     else:
-        response = httpClient.request(method, url+endpoint+"?"+payload, headers=headers)
+        response = httpClient.request(method, url+endPoint+"?"+payload, headers=headers)
     print(response.text)
     print(Info + " Elapsed Time : " + str(response.elapsed))
 
