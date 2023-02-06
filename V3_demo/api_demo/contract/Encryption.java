@@ -52,10 +52,9 @@ public class Encryption {
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
         MediaType mediaType = MediaType.parse("application/json");
-        RequestBody body = RequestBody.create(mediaType, jsonMap);
         Request request = new Request.Builder()
                 .url("https://api-testnet.bybit.com/contract/v3/private/order/create")
-                .method("post", body)
+                .post(RequestBody.create(mediaType, jsonMap))
                 .addHeader("X-BAPI-API-KEY", API_KEY)
                 .addHeader("X-BAPI-SIGN", signature)
                 .addHeader("X-BAPI-SIGN-TYPE", "2")
