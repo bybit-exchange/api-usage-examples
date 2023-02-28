@@ -41,6 +41,10 @@ function http_req($endpoint,$method,$params,$Info){
           "Content-Type: application/json"
         ),
       ));
+    if($method=="GET")
+    {
+      curl_setopt($curl, CURLOPT_HTTPGET, true);
+    }
     echo $Info . "\n";
     $response = curl_exec($curl);
     echo $response . "\n";
