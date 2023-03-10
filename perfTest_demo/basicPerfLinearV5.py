@@ -12,8 +12,6 @@ import requests
 import sys
 apiKey='xxxx'
 apiSecret='xxxx'
-apiKey='VvTGvEeXRjHDu8DFOu'
-apiSecret='7kbsdcG6HWlajaoHUkZySOJguCoyaGhXX9Du'
 session=requests.Session()
 URL="https://api.bybit.com"
 session.request("GET",URL+"/v2/public/time")
