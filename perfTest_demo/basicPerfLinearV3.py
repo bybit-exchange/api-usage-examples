@@ -14,7 +14,7 @@ apiKey='xxxx'
 apiSecret='xxxx'
 session=requests.Session()
 URL="https://api.bybit.com"
-session.request("GET",URL+"/v2/public/time")
+#session.request("GET",URL+"/v2/public/time")
 topic="user.order.contractAccount"
 symbol="BTCUSDT"
 

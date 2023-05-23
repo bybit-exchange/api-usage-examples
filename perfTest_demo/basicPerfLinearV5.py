@@ -10,12 +10,13 @@ from functools import reduce
 import re
 import requests
 import sys
+import numpy as np
 apiKey='xxxx'
 apiSecret='xxxx'
 session=requests.Session()
 URL="https://api.bybit.com"
-session.request("GET",URL+"/v2/public/time")
-topic="user.order.contractAccount"
+#session.request("GET",URL+"/v2/public/time")
+topic="order"
 symbol="BTCUSDT"
 
 import websocket
@@ -36,7 +37,7 @@ HTTPConnection.getresponse = getresponse
 orderStatus={}
 orderStatus['init']=False
 
-def placeV3USDTOrder(payload,timeStamp,orderLinkId):
+def placeV5USDTOrder(payload,timeStamp,orderLinkId):
     url=URL+"/v5/order/create"
     dataObj=json.loads(payload)
     recv_window=str(5000)
@@ -65,7 +66,7 @@ def placeOrder():
     currentTime=int(time.time()*1000)
     orderLinkId=str(currentTime)+'CDN'+str(randrange(1000,9999))
     #placeV3USDTOrder(json.dumps({"symbol": symbol,"side": "Buy","positionIdx": 0,"orderType": "Limit","qty": "0.001","price": "2400","timeInForce": "GoodTillCancel","orderLinkId": orderLinkId,"reduce_only": "false","closeOnTrigger": "false"}),currentTime,orderLinkId)
-    placeV3USDTOrder(json.dumps({"category":"linear","symbol": symbol,"side": "Buy","positionIdx": 0,"orderType": "Limit","qty": "0.001","price": "3000","timeInForce": "IOC","orderLinkId": orderLinkId,"reduce_only": "false","closeOnTrigger": "false"}),currentTime,orderLinkId)
+    placeV5USDTOrder(json.dumps({"category":"linear","symbol": symbol,"side": "Buy","positionIdx": 0,"orderType": "Limit","qty": "0.001","price": "3000","timeInForce": "IOC","orderLinkId": orderLinkId,"reduce_only": "false","closeOnTrigger": "false"}),currentTime,orderLinkId)
 
 def on_message(ws, message):
     data = json.loads(message)
@@ -144,3 +145,7 @@ connWS()
 
 time.sleep(5)
 print(json.dumps(orderStatus,indent=4))
+del orderStatus["init"]
+del orderStatus["conn_id"]
+for i in [0.1,1,5,10,25,50,75,90,95,97,99,99.9]:
+    print(str(i)+" is "+str(np.percentile([orderStatus[key]["orderPlaceRoundTrip"] for key in orderStatus.keys()],i)))
