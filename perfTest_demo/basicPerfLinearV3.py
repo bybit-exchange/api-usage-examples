@@ -9,6 +9,7 @@ from random import randrange
 import re
 import requests
 import sys
+import numpy as np
 apiKey='xxxx'
 apiSecret='xxxx'
 session=requests.Session()
@@ -142,3 +143,7 @@ connWS()
 
 time.sleep(5)
 print(json.dumps(orderStatus,indent=4))
+del orderStatus["init"]
+del orderStatus["conn_id"]
+for i in [0.1,1,5,10,25,50,75,90,95,97,99,99.9]:
+    print(str(i)+" is "+str(np.percentile([orderStatus[key]["orderPlaceRoundTrip"] for key in orderStatus.keys()],i)))
