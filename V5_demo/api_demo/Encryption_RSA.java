@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * a sample for how to create&get an order for contract v3 - INVERSE perp
+ * a sample for how to create & get an order for contract v5 - Linear perp
  */
 public class Encryption {
     final static String API_KEY = "XXXXXXXXXX";
@@ -37,7 +37,7 @@ public class Encryption {
     }
 
     /**
-     * POST: place a INVERSE perp order - contract v3
+     * POST: place a Linear perp order - contract v5
      */
     public void placeOrder(){
         String keyPem = "-----BEGIN PRIVATE KEY-----\n" +
