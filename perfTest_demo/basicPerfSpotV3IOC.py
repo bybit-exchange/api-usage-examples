@@ -18,7 +18,7 @@ apiKey='xxxx'
 apiSecret='xxxx'
 session=requests.Session()
 URL="https://api.bybit.com"
-topic="user.order.contractAccount"
+topic="order"
 symbol="BTCUSDT"
 wssResp={}
 wssResp['responseHeaders']={}
@@ -44,7 +44,7 @@ orderStatus['results']={}
 orderStatus['subtasks']=[]
 
 def placeV3USDTOrder(payload,timeStamp,orderLinkId):
-    url=URL+"/contract/v3/private/order/create"
+    url=URL+"/spot/v3/private/order"
     dataObj=json.loads(payload)
     recv_window=str(5000)
     param_str= str(timeStamp) + apiKey + recv_window + payload
@@ -71,7 +71,8 @@ def placeV3USDTOrder(payload,timeStamp,orderLinkId):
 def placeOrder():
     currentTime=int(time.time()*1000)
     orderLinkId=str(currentTime)+'AK'+str(randrange(1000,9999))
-    placeV3USDTOrder(json.dumps({"symbol": symbol,"side": "Buy","positionIdx": 0,"orderType": "Limit","qty": "0.001","price": "3000","timeInForce": "ImmediateOrCancel","orderLinkId": orderLinkId,"reduce_only": "false","closeOnTrigger": "false"}),currentTime,orderLinkId)
+    #placeV3USDTOrder(json.dumps({"symbol": symbol,"side": "Buy","positionIdx": 0,"orderType": "Limit","qty": "0.001","price": "2400","timeInForce": "GoodTillCancel","orderLinkId": orderLinkId,"reduce_only": "false","closeOnTrigger": "false"}),currentTime,orderLinkId)
+    placeV3USDTOrder(json.dumps({"symbol": symbol,"side": "Buy","orderType": "Limit","orderQty": "0.0001","orderPrice": "20000","timeInForce": "IOC","orderLinkId": orderLinkId}),currentTime,orderLinkId)
 
 def on_message(ws, message):
     data = json.loads(message)
@@ -82,10 +83,10 @@ def on_message(ws, message):
         x.start()
         orderStatus['init']=True
     #elif 'topic' in data and data['topic'] == topic and 'data' in data and data['data'][0]['orderLinkId'] in orderStatus and data['data'][0]['orderStatus']=='New':
-    elif 'topic' in data and data['topic'] == topic and 'data' in data and data['data'][0]['orderLinkId'] in orderStatus["results"] and data['data'][0]['orderStatus']=='Cancelled':
-        orderStatus["results"][data['data'][0]['orderLinkId']]['orderPlaceSend2Create']=int(data['data'][0]['createdTime'])-orderStatus["results"][data['data'][0]['orderLinkId']]['orderPlaceTime']
-        orderStatus["results"][data['data'][0]['orderLinkId']]['orderPlaceRoundTrip']=int(time.time()*1000)-orderStatus["results"][data['data'][0]['orderLinkId']]['orderPlaceTime']
-        orderStatus["results"][data['data'][0]['orderLinkId']]['wss']=data
+    elif 'topic' in data and data['topic'] == topic and 'data' in data and data['data'][0]['c'] in orderStatus["results"] and data['data'][0]['X']=='CANCELED':
+        orderStatus["results"][data['data'][0]['c']]['orderPlaceSend2Create']=int(data['data'][0]['O'])-orderStatus["results"][data['data'][0]['c']]['orderPlaceTime']
+        orderStatus["results"][data['data'][0]['c']]['orderPlaceRoundTrip']=int(time.time()*1000)-orderStatus["results"][data['data'][0]['c']]['orderPlaceTime']
+        orderStatus["results"][data['data'][0]['c']]['wss']=data
 
 def on_error(ws, error):
     print('we got error')
@@ -125,13 +126,14 @@ def on_ping(ws, *data):
     print('ping received')
 
 def loopPlaceOrder():
-    for i in range(500):
+    for i in range(15):
         placeOrder()
     time.sleep(1)
     for key in orderStatus["results"].keys():
         if "orderPlaceRoundTrip" not in orderStatus["results"][key]:
             print(key)
             print(orderStatus["results"][key])
+    print("V3 spot mean is "+str(np.mean([orderStatus["results"][key]["orderPlaceRoundTrip"] for key in orderStatus["results"].keys()])))
     for i in [0.1,1,5,10,25,50,75,90,95,97,99,99.9]:
         print("V3 "+str(i)+"th is "+str(np.percentile([orderStatus["results"][key]["orderPlaceRoundTrip"] for key in orderStatus["results"].keys()],i)))
 

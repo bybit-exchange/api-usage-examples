@@ -18,7 +18,7 @@ apiKey='xxxx'
 apiSecret='xxxx'
 session=requests.Session()
 URL="https://api.bybit.com"
-topic="user.order.contractAccount"
+topic="order"
 symbol="BTCUSDT"
 wssResp={}
 wssResp['responseHeaders']={}
@@ -43,8 +43,8 @@ orderStatus['init']=False
 orderStatus['results']={}
 orderStatus['subtasks']=[]
 
-def placeV3USDTOrder(payload,timeStamp,orderLinkId):
-    url=URL+"/contract/v3/private/order/create"
+def placeV5USDTOrder(payload,timeStamp,orderLinkId):
+    url=URL+"/v5/order/create"
     dataObj=json.loads(payload)
     recv_window=str(5000)
     param_str= str(timeStamp) + apiKey + recv_window + payload
@@ -64,14 +64,13 @@ def placeV3USDTOrder(payload,timeStamp,orderLinkId):
     response = session.request("POST", url, headers=headers, data=payload)
     orderStatus['results'][orderLinkId]['Traceid']=response.headers["Traceid"]
     orderStatus['results'][orderLinkId]['elapsed']=int(response.elapsed.microseconds/1000)
-    #print("V3 response message is "+response.text)
     #orderStatus['results'][orderLinkId]['responseText']=response.text
     #orderStatus[orderLinkId]['_client']=response.raw._original_response._client
 
 def placeOrder():
     currentTime=int(time.time()*1000)
     orderLinkId=str(currentTime)+'AK'+str(randrange(1000,9999))
-    placeV3USDTOrder(json.dumps({"symbol": symbol,"side": "Buy","positionIdx": 0,"orderType": "Limit","qty": "0.001","price": "3000","timeInForce": "ImmediateOrCancel","orderLinkId": orderLinkId,"reduce_only": "false","closeOnTrigger": "false"}),currentTime,orderLinkId)
+    placeV5USDTOrder(json.dumps({"category":"spot","symbol": symbol,"side": "Buy","positionIdx": 0,"orderType": "Limit","qty": "0.0001","price": "20000","timeInForce": "IOC","orderLinkId": orderLinkId,"reduce_only": "false","closeOnTrigger": "false"}),currentTime,orderLinkId)
 
 def on_message(ws, message):
     data = json.loads(message)
@@ -125,18 +124,20 @@ def on_ping(ws, *data):
     print('ping received')
 
 def loopPlaceOrder():
-    for i in range(500):
+    for i in range(15):
         placeOrder()
     time.sleep(1)
     for key in orderStatus["results"].keys():
         if "orderPlaceRoundTrip" not in orderStatus["results"][key]:
             print(key)
             print(orderStatus["results"][key])
+    print("V5 SPOT mean is "+str(np.mean([orderStatus["results"][key]["orderPlaceRoundTrip"] for key in orderStatus["results"].keys()])))
     for i in [0.1,1,5,10,25,50,75,90,95,97,99,99.9]:
-        print("V3 "+str(i)+"th is "+str(np.percentile([orderStatus["results"][key]["orderPlaceRoundTrip"] for key in orderStatus["results"].keys()],i)))
+        print("V5 "+str(i)+"th is "+str(np.percentile([orderStatus["results"][key]["orderPlaceRoundTrip"] for key in orderStatus["results"].keys()],i)))
+    #print(orderStatus["results"])
 
 def connWS():
-    ws = websocket.WebSocketApp("wss://stream.bybit.com/contract/private/v3",
+    ws = websocket.WebSocketApp("wss://stream.bybit.com/v5/private",
         on_message = on_message,
         on_error = on_error,
         on_close = on_close,
