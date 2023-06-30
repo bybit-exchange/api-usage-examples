@@ -71,7 +71,7 @@ def placeV3USDTOrder(payload,timeStamp,orderLinkId):
 def placeOrder():
     currentTime=int(time.time()*1000)
     orderLinkId=str(currentTime)+'AK'+str(randrange(1000,9999))
-    placeV3USDTOrder(json.dumps({"symbol": symbol,"side": "Buy","positionIdx": 0,"orderType": "Limit","qty": "0.001","price": "3000","timeInForce": "ImmediateOrCancel","orderLinkId": orderLinkId,"reduce_only": "false","closeOnTrigger": "false"}),currentTime,orderLinkId)
+    placeV3USDTOrder(json.dumps({"symbol": symbol,"side": "Buy","positionIdx": 0,"orderType": "Limit","qty": "0.001","price": "3500","timeInForce": "ImmediateOrCancel","orderLinkId": orderLinkId,"reduce_only": "false","closeOnTrigger": "false"}),currentTime,orderLinkId)
 
 def on_message(ws, message):
     data = json.loads(message)
