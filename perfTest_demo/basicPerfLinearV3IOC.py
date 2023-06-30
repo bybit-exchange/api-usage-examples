@@ -132,6 +132,7 @@ def loopPlaceOrder():
         if "orderPlaceRoundTrip" not in orderStatus["results"][key]:
             print(key)
             print(orderStatus["results"][key])
+    print("V3 mean is "+str(np.mean([orderStatus["results"][key]["orderPlaceRoundTrip"] for key in orderStatus["results"].keys()])))
     for i in [0.1,1,5,10,25,50,75,90,95,97,99,99.9]:
         print("V3 "+str(i)+"th is "+str(np.percentile([orderStatus["results"][key]["orderPlaceRoundTrip"] for key in orderStatus["results"].keys()],i)))
 
