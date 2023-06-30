@@ -8,7 +8,6 @@ import logging
 import logging.config
 import logging.handlers
 import time
-from pybit import HTTP
 from datetime import datetime
 from random import randrange
 from functools import reduce
