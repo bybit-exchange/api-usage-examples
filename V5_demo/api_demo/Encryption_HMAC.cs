@@ -7,8 +7,8 @@ namespace Encryption_HMAC
 {
     public class Encryption
     {
-        private const string ApiKey = "8wYkmpLsMg10eNQyPm";
-        private const string ApiSecret = "Ouxc34myDnXvei54XsBZgoQzfGxO4bkr2Zsj";
+        private const string ApiKey = "xxxxxxxxxxxxx";
+        private const string ApiSecret = "xxxxxxxxxxxxxxxxxxxxx";
         private static readonly string Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString();
         private const string RecvWindow = "5000";
 
