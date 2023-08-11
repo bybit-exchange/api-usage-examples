@@ -15,7 +15,7 @@ namespace Encryption_HMAC
         public static void Main()
         {
             var encryptionTest = new Encryption();
-            //encryptionTest.PlaceOrder();
+            encryptionTest.PlaceOrder();
             encryptionTest.GetOpenOrder();
         }
 
