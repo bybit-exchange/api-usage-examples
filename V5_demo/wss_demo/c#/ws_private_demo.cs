@@ -86,7 +86,7 @@ async Task Ping(ClientWebSocket ws, CancellationToken token)
 {
     while (!token.IsCancellationRequested)
     {
-        await Task.Delay(TimeSpan.FromSeconds(20));
+        await Task.Delay(TimeSpan.FromSeconds(20), token);
         if (ws.State == WebSocketState.Open)
         {
             await ws.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes("ping")), WebSocketMessageType.Text, true, CancellationToken.None);
