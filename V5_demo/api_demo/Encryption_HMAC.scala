@@ -18,8 +18,8 @@ import java.{lang, util}
  * a sample for how to create & get an order for contract v5 - Linear perpetual
  */
 object Encryption {
-  val API_KEY = "8wYkmpLsMg10eNQyPm"
-  val API_SECRET = "Ouxc34myDnXvei54XsBZgoQzfGxO4bkr2Zsj"
+  val API_KEY = "xxxxxxxxxx"
+  val API_SECRET = "xxxxxxxxxxxxxxxx"
   val TIMESTAMP: String = ZonedDateTime.now.toInstant.toEpochMilli.toString
   val RECV_WINDOW = "5000"
 
