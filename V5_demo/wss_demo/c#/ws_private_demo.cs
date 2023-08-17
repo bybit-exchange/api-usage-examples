@@ -32,8 +32,8 @@ async Task OnOpen(ClientWebSocket ws)
 
 async Task SendAuth(ClientWebSocket ws)
 {
-    string key = "8wYkmpLsMg10eNQyPm";
-    string secret = "Ouxc34myDnXvei54XsBZgoQzfGxO4bkr2Zsj";
+    string key = "xxxxxxxxxx";
+    string secret = "xxxxxxxxxxxxxxxx";
     long expires = DateTimeOffset.Now.ToUnixTimeMilliseconds() + 10000;
     string _val = $"GET/realtime{expires}";
 
