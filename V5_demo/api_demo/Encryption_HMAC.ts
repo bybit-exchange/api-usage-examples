@@ -3,8 +3,8 @@ import axios, { AxiosRequestConfig } from 'axios';
 
 const url = 'https://api-testnet.bybit.com';
 
-const apiKey = "xxxxxxxxxxxxxxxxx";
-const secret = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+const apiKey = "xxxxxxxxxxxx";
+const secret = "xxxxxxxxxxxxxxxxxxxxxxxxxxx";
 const recvWindow = 5000;
 const timestamp = Date.now().toString();
 
@@ -12,31 +12,44 @@ function generateSignature(parameters: string, secret: string): string {
     return crypto.createHmac('sha256', secret).update(timestamp + apiKey + recvWindow + parameters).digest('hex');
 }
 
-async function http_request(endpoint: string, method: "GET" | "POST", data: string, Info: string): Promise<void> {
-    const sign = generateSignature(data, secret);
-    const fullendpoint = method === "POST" ? url + endpoint : url + endpoint + "?" + data;
+async function http_request(endpoint, method, data, Info) {
+    var sign = generateSignature(data, secret);
+    var fullendpoint: string;
 
-    const config: AxiosRequestConfig = {
+    if (method === "POST") {
+        fullendpoint = url + endpoint;
+    } else {
+        fullendpoint = url + endpoint + "?" + data;
+        data = "";
+    }
+
+    var headers = {
+        'X-BAPI-SIGN-TYPE': '2',
+        'X-BAPI-SIGN': sign,
+        'X-BAPI-API-KEY': apiKey,
+        'X-BAPI-TIMESTAMP': timestamp,
+        'X-BAPI-RECV-WINDOW': recvWindow.toString()
+    };
+
+    if (method === "POST") {
+        headers['Content-Type'] = 'application/json; charset=utf-8';
+    }
+
+    var config = {
         method: method,
         url: fullendpoint,
-        headers: {
-            'X-BAPI-SIGN-TYPE': '2',
-            'X-BAPI-SIGN': sign,
-            'X-BAPI-API-KEY': apiKey,
-            'X-BAPI-TIMESTAMP': timestamp,
-            'X-BAPI-RECV-WINDOW': '5000',
-            'Content-Type': 'application/json; charset=utf-8'
-        },
+        headers: headers,
         data: data
     };
 
-    // console.log(`${Info} Calling....`);
-    try {
-        const response = await axios(config);
-        console.log(JSON.stringify(response.data));
-    } catch (error) {
-        console.log(error);
-    }
+    console.log(Info + " Calling....");
+    await axios(config)
+        .then(function (response) {
+            console.log(JSON.stringify(response.data));
+        })
+        .catch(function (error) {
+            console.log(error.response.data);
+        });
 }
 
 async function TestCase(): Promise<void> {
