@@ -77,9 +77,10 @@
 ```
 #### Python Google Sheet API Example
 ```python
-google-auth          2.23.3
-google-auth-oauthlib 1.1.0
-gspread              5.11.3
-requests             2.30.0
-pandas               2.0.1
+# pip list
+google-auth==2.23.3
+google-auth-oauthlib==1.1.0
+gspread==5.11.3
+requests==2.30.0
+pandas==2.0.1
 ```
