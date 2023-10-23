@@ -6,6 +6,7 @@
 #include <iostream>
 #include <openssl/hmac.h>
 #include <nlohmann/json.hpp>
+#include <chrono>
 
 namespace net = boost::asio;
 namespace ssl = net::ssl;
@@ -80,7 +81,9 @@ public:
 
     void authenticate()
     {
-        int expires = static_cast<int>(time(nullptr) + 10) * 1000;
+        long long int expires = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count() + 1000;
+        
         std::string val = "GET/realtime" + std::to_string(expires);
 
         std::string signature = sign_message(val, secret_key);
