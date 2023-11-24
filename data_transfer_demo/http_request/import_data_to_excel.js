@@ -2,8 +2,8 @@ const axios = require('axios');
 const crypto = require('crypto');
 const ExcelJS = require('exceljs');
 
-const api_key = '8wYkmpLsMg10eNQyPm';
-const secret_key = 'Ouxc34myDnXvei54XsBZgoQzfGxO4bkr2Zsj';
+const api_key = 'xxxxxxxxxxxxxxxxx';
+const secret_key = 'xxxxxxxxxxxxxxxxx';
 const recv_window = '5000';
 const url = 'https://api-testnet.bybit.com';
 
