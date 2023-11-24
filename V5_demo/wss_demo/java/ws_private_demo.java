@@ -1,18 +1,21 @@
-package org.example;
+package com.bybit.api.client.websocket;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.alibaba.fastjson.JSON;
+import org.apache.commons.codec.binary.Hex;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.enums.ReadyState;
 import org.java_websocket.handshake.ServerHandshake;
+import org.jetbrains.annotations.NotNull;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -22,22 +25,38 @@ public class ws_private_demo {
         try {
             connect();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
     static void connect() throws URISyntaxException {
         URI uri = new URI("wss://stream-testnet.bybit.com/v5/private");
+        WebSocketClient ws = getWebSocketClient(uri);
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        executor.scheduleAtFixedRate(() -> {
+            try {
+                if (ws.getReadyState() == ReadyState.OPEN) {
+                    System.out.println("Ping sent");
+                    ws.send("{\"op\":\"ping\"}");
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }, 0, 20, TimeUnit.SECONDS);
+    }
+
+    @NotNull
+    private static WebSocketClient getWebSocketClient(URI uri) {
         WebSocketClient ws = new WebSocketClient(uri) {
             @Override
-            public void onOpen(ServerHandshake handshakedata) {
+            public void onOpen(ServerHandshake handshake) {
                 System.out.println("Connected.");
                 ws_private_demo.onOpen(this);
             }
 
             @Override
             public void onMessage(String message) {
-                receive(message);
+                System.out.println("Message received : " + message);
             }
 
             @Override
@@ -46,23 +65,13 @@ public class ws_private_demo {
             }
 
             @Override
-            public void onError(Exception ex) {
-                ex.printStackTrace();
+            public void onError(Exception e) {
+                System.out.println(e.getMessage());
             }
         };
 
         ws.connect();
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(() -> {
-            try {
-                if (ws.getReadyState() == ReadyState.OPEN) {
-                    ws.send("ping");
-                    System.out.println("ping sent");
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }, 0, 20, TimeUnit.SECONDS);
+        return ws;
     }
 
     static void onOpen(WebSocketClient ws) {
@@ -72,58 +81,34 @@ public class ws_private_demo {
     }
 
     static void sendAuth(WebSocketClient ws) {
-        String key = "xxxxxxxxx";
-        String secret = "xxxxxxxxxxxxxxxxxxxxxxx";
+        String key = "xxxxxxxx";
+        String secret = "xxxxxxxxxxxxxxx";
         long expires = Instant.now().toEpochMilli() + 10000;
         String _val = "GET/realtime" + expires;
 
+        byte[] hmacSha256;
         try {
-            Mac hmacSha256 = Mac.getInstance("HmacSHA256");
-            SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-            hmacSha256.init(secretKeySpec);
-            byte[] hash = hmacSha256.doFinal(_val.getBytes(StandardCharsets.UTF_8));
-            StringBuilder sb = new StringBuilder();
-            for (byte b : hash) {
-                sb.append(String.format("%02x", b));
-            }
-            String signature = sb.toString();
-
-            Map<String, Object> authMessage = new HashMap<>();
-            authMessage.put("op", "auth");
-            authMessage.put("args", new Object[]{key, expires, signature});
-
-            ObjectMapper objectMapper = new ObjectMapper();
-            String authMessageJson = objectMapper.writeValueAsString(authMessage);
-            System.out.println(authMessageJson);
-            ws.send(authMessageJson);
+            SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(), "HmacSHA256");
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(secretKeySpec);
+            hmacSha256 = mac.doFinal(_val.getBytes());
+            var args = List.of(key, expires, Hex.encodeHexString(hmacSha256));
+            var authMap = Map.of("req_id", UUID.randomUUID().toString(), "op", "auth", "args", args);
+            var authJson =  JSON.toJSONString(authMap);
+            System.out.println("Auth Message" + authJson);
+            ws.send(authJson);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Failed to calculate hmac-sha256", e);
         }
     }
 
     static void sendSubscription(WebSocketClient ws) {
         String topic = "order";
         Map<String, Object> subMessage = new HashMap<>();
+        subMessage.put("req_id", UUID.randomUUID().toString());
         subMessage.put("op", "subscribe");
         subMessage.put("args", new String[]{topic});
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            String subMessageJson = objectMapper.writeValueAsString(subMessage);
-            System.out.println("send subscription " + topic);
-            ws.send(subMessageJson);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    static void receive(String message) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            Map<String, Object> data = objectMapper.readValue(message, Map.class);
-            System.out.println(data);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        System.out.println("Subscribe Message" +JSON.toJSONString(subMessage));
+        ws.send(JSON.toJSONString(subMessage));
     }
 }
