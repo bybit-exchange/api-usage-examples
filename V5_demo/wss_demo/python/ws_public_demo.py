@@ -53,5 +53,5 @@ def connWS():
 
 
 if __name__ == "__main__":
-    #websocket.enableTrace(True)
+    websocket.enableTrace(True)
     connWS()
