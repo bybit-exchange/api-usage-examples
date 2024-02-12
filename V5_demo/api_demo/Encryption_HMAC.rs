@@ -10,8 +10,8 @@ use hex;
 type HmacSha256 = Hmac<Sha256>;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let api_key = "8wYkmpLsMg10eNQyPm";
-    let api_secret = "Ouxc34myDnXvei54XsBZgoQzfGxO4bkr2Zsj";
+    let api_key = "xxxxxxxx";
+    let api_secret = "xxxxxxxxxxx";
     let timestamp = Utc::now().timestamp_millis().to_string();
     let recv_window = "5000";
 
