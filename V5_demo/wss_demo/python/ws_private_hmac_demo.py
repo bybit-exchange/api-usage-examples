@@ -2,7 +2,7 @@ import hmac
 import json
 import logging
 import time
-
+import threading
 import websocket
 
 logging.basicConfig(filename='logfile_wrapper.log', level=logging.DEBUG,
@@ -43,6 +43,12 @@ def on_open(ws):
     send_auth(ws)
     print('send subscription ' + topic)
     ws.send(json.dumps({"op": "subscribe", "args": [topic]}))
+    def pingPer(ws):
+        while True:
+          ws.send(json.dumps({'op': 'ping'}))
+          time.sleep(15)
+    t1 = threading.Thread(target=pingPer, args=(ws,))
+    t1.start()
 
 def connWS():
     ws = websocket.WebSocketApp("wss://stream-testnet.bybit.com/v5/private",
