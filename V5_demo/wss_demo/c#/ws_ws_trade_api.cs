@@ -54,8 +54,8 @@ class Program
 
     static async Task SendAuthAsync()
     {
-        string apiKey = "8wYkmpLsMg10eNQyPm";
-        string apiSecret = "Ouxc34myDnXvei54XsBZgoQzfGxO4bkr2Zsj";
+        string apiKey = "xxxxx";
+        string apiSecret = "xxxxxx";
         long expires = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + 10000;
         string signature = CreateSignature(apiSecret, $"GET/realtime{expires}");
 
