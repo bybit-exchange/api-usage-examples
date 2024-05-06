@@ -26,7 +26,7 @@ async def authenticate(ws):
 async def send_subscription(ws):
     sub_msg = {
         "reqId": "sub-001",
-        "headers": {
+        "header": {
             "X-BAPI-TIMESTAMP": str(int(datetime.now().timestamp() * 1000)),
             "X-BAPI-RECV-WINDOW": "8000",
         },

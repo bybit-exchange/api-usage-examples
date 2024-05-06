@@ -109,7 +109,7 @@ public class ws_trade_api_demo {
         try {
             Map<String, Object> subMessage = new HashMap<>();
             subMessage.put("reqId", UUID.randomUUID().toString());
-            subMessage.put("headers", Map.of("X-BAPI-TIMESTAMP", String.valueOf(Instant.now().toEpochMilli()), "X-BAPI-RECV-WINDOW", "8000"));
+            subMessage.put("header", Map.of("X-BAPI-TIMESTAMP", String.valueOf(Instant.now().toEpochMilli()), "X-BAPI-RECV-WINDOW", "8000"));
             subMessage.put("op", "order.create");
             // args is now a List of Map to match the specified format
             List<Map<String, Object>> args = List.of(

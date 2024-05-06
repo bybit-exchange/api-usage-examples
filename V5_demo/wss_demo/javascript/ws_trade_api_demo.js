@@ -34,7 +34,7 @@ function authenticate(ws) {
 function sendSubscription(ws) {
     const subscriptionMessage = {
         reqId: 'sub-001',
-        headers: {
+        header: {
             "X-BAPI-TIMESTAMP": String(Date.now()),
             "X-BAPI-RECV-WINDOW": "8000",
         },

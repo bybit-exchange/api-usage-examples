@@ -51,7 +51,7 @@ func main() {
     // Subscription
     subscriptionMessage := `{
         "reqId": "sub-001",
-        "headers": {
+        "header": {
             "X-BAPI-TIMESTAMP": "` + strconv.FormatInt(time.Now().Unix()*1000, 10) + `",
             "X-BAPI-RECV-WINDOW": "8000"
         },
