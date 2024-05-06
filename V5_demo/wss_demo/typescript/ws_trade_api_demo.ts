@@ -34,7 +34,7 @@ function authenticate(ws: WebSocket): void {
 function sendSubscription(ws: WebSocket): void {
     const subscriptionMessage: any = {
         reqId: 'sub-001',
-        headers: {
+        header: {
             "X-BAPI-TIMESTAMP": String(Date.now()),
             "X-BAPI-RECV-WINDOW": "8000",
         },

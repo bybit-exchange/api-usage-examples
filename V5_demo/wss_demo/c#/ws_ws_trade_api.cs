@@ -76,7 +76,7 @@ class Program
         var subMessage = new
         {
             reqId = Guid.NewGuid().ToString(),
-            headers = new Dictionary<string, string>
+            header = new Dictionary<string, string>
             {
                 { "X-BAPI-TIMESTAMP", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString() },
                 { "X-BAPI-RECV-WINDOW", "8000" }
