@@ -3,6 +3,7 @@ import logging
 import time
 from datetime import datetime
 import websocket
+import threading
 
 logging.basicConfig(filename='logfile_wrapper.log', level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
@@ -24,6 +25,12 @@ def on_close(ws):
 def on_open(ws):
     print('opened')
     ws.send(json.dumps({"op": "subscribe", "args": [topic]}))
+    def pingPer(ws):
+        while True:
+          ws.send(json.dumps({'op': 'ping'}))
+          time.sleep(10)
+    t1 = threading.Thread(target=pingPer, args=(ws,))
+    t1.start()
 
 def on_pong(ws, *data):
     print('pong received')
