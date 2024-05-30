@@ -2,8 +2,8 @@ import hmac
 import json
 import logging
 import time
-
 import websocket
+import threading
 
 logging.basicConfig(filename='logfile_wrapper.log', level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
@@ -21,8 +21,8 @@ def on_close(ws):
     print("### about to close please don't close ###")
 
 def send_auth(ws):
-    key = 'xxxxxxxxxxx'
-    secret = 'xxxxxxxxxxxxxxxx'
+    key = 'xxxxxxxxxxxxxxxxx'
+    secret = 'xxxxxxxxxxxxxxxxx'
     expires = int((time.time() + 10) * 1000)
     _val = f'GET/realtime{expires}'
     print(_val)
@@ -43,6 +43,12 @@ def on_open(ws):
     send_auth(ws)
     print('send subscription ' + topic)
     ws.send(json.dumps({"op": "subscribe", "args": [topic]}))
+    def pingPer(ws):
+        while True:
+            ws.send(json.dumps({'op': 'ping'}))
+            time.sleep(10)
+    t1 = threading.Thread(target=pingPer, args=(ws,))
+    t1.start()
 
 def connWS():
     ws = websocket.WebSocketApp("wss://stream-testnet.bybit.com/v5/private",
