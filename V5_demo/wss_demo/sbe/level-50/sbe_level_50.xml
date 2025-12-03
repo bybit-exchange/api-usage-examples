@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sbe:messageSchema xmlns:sbe="http://fixprotocol.io/2016/sbe"
+                   xmlns:mbx="https://bybit-exchange.github.io/docs/v5/intro"
+                   package="quote.sbe"
+                   id="1"
+                   version="0"
+                   semanticVersion="1.0.0"
+                   description="Bybit market data streams SBE message schema"
+                   byteOrder="littleEndian"
+                   headerType="messageHeader">
+
+    <types>
+        <composite name="messageHeader" description="Template ID and length of message root">
+            <type name="blockLength" primitiveType="uint16"/>
+            <type name="templateId" primitiveType="uint16"/>
+            <type name="schemaId" primitiveType="uint16"/>
+            <type name="version" primitiveType="uint16"/>
+        </composite>
+
+        <composite name="varString8" description="Variable length UTF-8 string.">
+            <type name="length" primitiveType="uint8"/>
+            <type name="varData" length="0" primitiveType="uint8"
+                  semanticType="String" characterEncoding="UTF-8"/>
+        </composite>
+
+        <composite name="groupSize16Encoding" description="Repeating group dimensions.">
+            <type name="blockLength" primitiveType="uint16"/>
+            <type name="numInGroup" primitiveType="uint16"/>
+        </composite>
+
+        <!-- NEW: package type enum -->
+        <enum name="pkgTypeEnum" encodingType="uint8">
+            <validValue name="SNAPSHOT">0</validValue>
+            <validValue name="DELTA">1</validValue>
+        </enum>
+    </types>
+
+    <!-- Stream event for "ob.rpi.1.sbe.<symbol>" channel -->
+    <sbe:message name="BestOBRpiEvent" id="20000">
+        <field id="1"  name="ts"              type="int64"
+               description="The timestamp in microseconds that the system generates the data"/>
+        <field id="2"  name="seq"             type="int64"
+               description="Cross sequence ID"/>
+        <field id="3"  name="cts"             type="int64"
+               description="The timestamp in microseconds from the matching engine when this orderbook data is produced."/>
+        <field id="4"  name="u"               type="int64"
+               description="Update Id"/>
+        <field id="5"  name="askNormalPrice"  type="int64" mbx:exponent="priceExponent"
+               description="Mantissa for the best ask normal price"/>
+        <field id="6"  name="askNormalSize"   type="int64" mbx:exponent="sizeExponent"
+               description="Mantissa for the best ask normal size"/>
+        <field id="7"  name="askRpiPrice"     type="int64" mbx:exponent="priceExponent"
+               description="Mantissa for the best ask rpi price"/>
+        <field id="8"  name="askRpiSize"      type="int64" mbx:exponent="sizeExponent"
+               description="Mantissa for the best ask rpi size"/>
+        <field id="9"  name="bidNormalPrice"  type="int64" mbx:exponent="priceExponent"
+               description="Mantissa for the best bid normal price"/>
+        <field id="10" name="bidNormalSize"   type="int64" mbx:exponent="sizeExponent"
+               description="Mantissa for the best bid normal size"/>
+        <field id="11" name="bidRpiPrice"     type="int64" mbx:exponent="priceExponent"
+               description="Mantissa for the best bid rpi price"/>
+        <field id="12" name="bidRpiSize"      type="int64" mbx:exponent="sizeExponent"
+               description="Mantissa for the best bid rpi size"/>
+        <field id="13" name="priceExponent"   type="int8"
+               description="Price exponent for decimal point positioning"/>
+        <field id="14" name="sizeExponent"    type="int8"
+               description="Size exponent for decimal point positioning"/>
+        <data  id="55" name="symbol"          type="varString8"/>
+    </sbe:message>
+
+    <!-- Stream event for "ob.50.sbe.<symbol>" channel -->
+    <sbe:message name="OBL50Event" id="20001">
+        <field id="1" name="ts"            type="int64"
+               description="The timestamp in microseconds that the system generates the data"/>
+        <field id="2" name="seq"           type="int64"
+               description="Cross sequence ID"/>
+        <field id="3" name="cts"           type="int64"
+               description="The timestamp in microseconds from the matching engine when this orderbook data is produced."/>
+        <field id="4" name="u"             type="int64"
+               description="Update Id"/>
+        <field id="5" name="priceExponent" type="int8"
+               description="Price exponent for decimal point positioning"/>
+        <field id="6" name="sizeExponent"  type="int8"
+               description="Size exponent for decimal point positioning"/>
+
+        <!-- NEW: package type -->
+        <field id="7" name="pkgType"       type="pkgTypeEnum"
+               description="Package type: 0 = SNAPSHOT (full book), 1 = DELTA (partial update)"/>
+
+        <group id="40" name="asks" dimensionType="groupSize16Encoding"
+               description="Sell side order book updates">
+            <field id="1" name="price" type="int64" description="Price mantissa"/>
+            <field id="2" name="size"  type="int64" description="Size mantissa"/>
+        </group>
+        <group id="41" name="bids" dimensionType="groupSize16Encoding"
+               description="Buy side order book updates">
+            <field id="1" name="price" type="int64" description="Price mantissa"/>
+            <field id="2" name="size"  type="int64" description="Size mantissa"/>
+        </group>
+        <data id="55" name="symbol" type="varString8"/>
+    </sbe:message>
+</sbe:messageSchema>
