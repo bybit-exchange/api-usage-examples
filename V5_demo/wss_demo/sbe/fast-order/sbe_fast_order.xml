@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sbe:messageSchema xmlns:sbe="http://fixprotocol.io/2016/sbe" xmlns:mbx="https://bybit-exchange.github.io/docs/v5/intro" package="order.fast.sbe" id="1" version="0" semanticVersion="1.0.0" description="Bybit fast order response SBE schema" byteOrder="littleEndian" headerType="messageHeader">
+  <types>
+    <composite name="messageHeader" description="Template ID and length of message root">
+      <type name="blockLength" primitiveType="uint16"/>
+      <type name="templateId" primitiveType="uint16"/>
+      <type name="schemaId" primitiveType="uint16"/>
+      <type name="version" primitiveType="uint16"/>
+    </composite>
+    <composite name="varString8" description="Variable length UTF-8 string">
+      <type name="length" primitiveType="uint8"/>
+      <type name="varData" length="0" primitiveType="uint8" semanticType="String" characterEncoding="UTF-8"/>
+    </composite>
+  </types>
+  <!-- Fast order response: active place/cancel/amend acknowledgements -->
+  <sbe:message name="FastOrderResp" id="21000">
+    <!-- Routing / classification -->
+    <field id="1" name="category" type="uint8" description="1=spot, 2=linear, 3=inverse, 4=option"/>
+    <!-- Side / status / rejection -->
+    <field id="2" name="side" type="uint8" description="1=Buy, 2=Sell"/>
+    <field id="3" name="orderStatus" type="uint8" description="Order state enum"/>
+    <!-- Price / size (mantissas) with exponents -->
+    <field id="4" name="priceExponent" type="int8" description="Decimal places for price"/>
+    <field id="5" name="sizeExponent" type="int8" description="Decimal places for size"/>
+    <field id="6" name="valueExponent" type="int8" description="Decimal places for value"/>
+    <field id="7" name="rejectReason" type="uint16" description="0 if N/A"/>
+    <field id="8" name="price" type="int64" mbx:exponent="priceExponent" description="Price mantissa"/>
+    <field id="9" name="qty" type="int64" mbx:exponent="sizeExponent" description="Order quantity mantissa"/>
+    <field id="10" name="leavesQty" type="int64" mbx:exponent="sizeExponent" description="Remaining quantity mantissa"/>
+    <field id="11" name="value" type="int64" mbx:exponent="valueExponent" description="Spot market buy only; otherwise 0"/>
+    <field id="12" name="leavesValue" type="int64" mbx:exponent="valueExponent" description="Spot market buy only; otherwise 0"/>
+    <!-- Timing -->
+    <field id="13" name="creationTime" type="int64" description="Order creation timestamp in Fast order channel(microseconds)"/>
+    <field id="14" name="updatedTime" type="int64" description="Matching timestamp (microseconds)"/>
+    <field id="15" name="seq" type="int64" description="Cross sequence ID"/>
+    <!-- SymbolName -->
+    <data id="100" name="symbolName" type="varString8" description="Symbol name"/>
+    <!-- Order identifiers -->
+    <data id="101" name="orderId" type="varString8" description="Order ID"/>
+    <data id="102" name="orderLinkId" type="varString8" description="Optional; present for user-initiated orders"/>
+  </sbe:message>
+</sbe:messageSchema>
