@@ -14,8 +14,6 @@ handler.setFormatter(logging.Formatter("[%(asctime)s] %(levelname)s: %(message)s
 logger.addHandler(handler)
 
 MMWS_URL_TESTNET = "wss://stream-testnet.bybits.org/v5/private"
-URL_TESTNET = "wss://stream-testnet.bybit.com/v5/private"
-MMWS_URL_MAINNET = "wss://stream.bybit.com/v5/private"
 API_KEY = "xxx"
 API_SECRET = "xxx"
 SUB_TOPICS = ["order.sbe.resp.linear"]
