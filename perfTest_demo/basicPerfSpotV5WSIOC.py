@@ -61,6 +61,7 @@ def on_private_open(ws):
     print("[PRIVATE] authenticated & subscribed")
 
 def on_private_message(ws, message):
+    msgTime=int(now_ms())
     msg = json.loads(message)
     print(msg)
     if msg.get("topic") != "order":
@@ -70,7 +71,7 @@ def on_private_message(ws, message):
         if d.get("orderStatus") == "Cancelled":
             link_id = d.get("orderLinkId")
             if link_id in submit_ts:
-                rtt = int(d["updatedTime"]) - submit_ts[link_id]
+                rtt = msgTime - submit_ts[link_id]
                 with lock:
                     latencies.append(rtt)
                 print(f"[{link_id}] Cancelled RTT={rtt} ms")
