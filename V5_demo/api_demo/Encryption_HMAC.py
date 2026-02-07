@@ -1,56 +1,81 @@
-import requests
-import time
 import hashlib
 import hmac
+import json
+import time
 import uuid
+import requests
 
-api_key='XXXXXXXXXX'
-secret_key='XXXXXXXXXX'
-httpClient=requests.Session()
-recv_window=str(5000)
-url="https://api-testnet.bybit.com" # Testnet endpoint
+API_KEY = 'xxxxxxxxxxxxxxxxxx'
+API_SECRET = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+HTTP_CLIENT = requests.Session()
+RECV_WINDOW = '5000'
+BASE_URL = "https://api-testnet.bybit.com"  # Testnet endpoint
 
-def HTTP_Request(endPoint,method,payload,Info):
-    global time_stamp
-    time_stamp=str(int(time.time() * 10 ** 3))
-    signature=genSignature(payload)
+
+def http_request(endpoint: str, method: str, payload: str, info: str) -> None:
+    timestamp = str(int(time.time() * 10**3))
+    signature = gen_signature(payload, timestamp)
     headers = {
-        'X-BAPI-API-KEY': api_key,
+        'X-BAPI-API-KEY': API_KEY,
         'X-BAPI-SIGN': signature,
         'X-BAPI-SIGN-TYPE': '2',
-        'X-BAPI-TIMESTAMP': time_stamp,
-        'X-BAPI-RECV-WINDOW': recv_window,
-        'Content-Type': 'application/json'
+        'X-BAPI-TIMESTAMP': timestamp,
+        'X-BAPI-RECV-WINDOW': RECV_WINDOW,
+        'Content-Type': 'application/json',
     }
-    if(method=="POST"):
-        response = httpClient.request(method, url+endPoint, headers=headers, data=payload)
+
+    url = BASE_URL + endpoint
+    if method == "POST":
+        response = HTTP_CLIENT.request(method, url, headers=headers, data=payload)
     else:
-        response = httpClient.request(method, url+endPoint+"?"+payload, headers=headers)
+        response = HTTP_CLIENT.request(method, url + "?" + payload, headers=headers)
+
     print(response.text)
     print(response.headers)
-    print(Info + " Elapsed Time : " + str(response.elapsed))
+    print(f"[{info}] Elapsed Time: {response.elapsed}")
 
-def genSignature(payload):
-    param_str= str(time_stamp) + api_key + recv_window + payload
-    hash = hmac.new(bytes(secret_key, "utf-8"), param_str.encode("utf-8"),hashlib.sha256)
-    signature = hash.hexdigest()
-    return signature
 
-#Create Order
-endpoint="/v5/order/create"
-method="POST"
-orderLinkId=uuid.uuid4().hex
-params='{"category":"linear","symbol": "BTCUSDT","side": "Buy","positionIdx": 0,"orderType": "Limit","qty": "0.001","price": "10000","timeInForce": "GTC","orderLinkId": "' + orderLinkId + '"}'
-HTTP_Request(endpoint,method,params,"Create")
+def gen_signature(payload: str, timestamp: str) -> str:
+    param_str = f"{timestamp}{API_KEY}{RECV_WINDOW}{payload}"
+    mac = hmac.new(
+        API_SECRET.encode('utf-8'),
+        param_str.encode('utf-8'),
+        hashlib.sha256
+    )
+    return mac.hexdigest()
 
-#Get unfilled Orders
-endpoint="/v5/order/realtime"
-method="GET"
-params='category=linear&settleCoin=USDT'
-HTTP_Request(endpoint,method,params,"UnFilled")
 
-#Cancel Order
-endpoint="/v5/order/cancel"
-method="POST"
-params='{"category":"linear","symbol": "BTCUSDT","orderLinkId": "'+orderLinkId+'"}'
-HTTP_Request(endpoint,method,params,"Cancel")
+# Create Order
+endpoint = "/v5/order/create"
+method = "POST"
+order_link_id = uuid.uuid4().hex
+order_payload = {
+    "category": "linear",
+    "symbol": "BTCUSDT",
+    "side": "Buy",
+    "positionIdx": 0,
+    "orderType": "Limit",
+    "qty": "0.001",
+    "price": "80000",
+    "timeInForce": "GTC",
+    "orderLinkId": order_link_id
+}
+params = json.dumps(order_payload)
+http_request(endpoint, method, params, "Create order")
+
+# Get unfilled Orders
+endpoint = "/v5/order/realtime"
+method = "GET"
+params = 'category=linear&settleCoin=USDT'
+http_request(endpoint, method, params, "Get unfilled orders")
+
+# Cancel Order
+endpoint = "/v5/order/cancel"
+method = "POST"
+cancel_payload = {
+    "category": "linear",
+    "symbol": "BTCUSDT",
+    "orderLinkId": order_link_id
+}
+params = json.dumps(cancel_payload)
+http_request(endpoint, method, params, "Cancel an order")
