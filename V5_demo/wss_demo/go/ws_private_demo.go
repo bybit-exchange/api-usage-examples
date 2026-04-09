@@ -29,7 +29,7 @@ func connect() {
 	ticker := time.NewTicker(20 * time.Second)
 	go func() {
 		for range ticker.C {
-			err := c.WriteMessage(websocket.TextMessage, []byte("ping"))
+			err := c.WriteMessage(websocket.TextMessage, []byte(`{"op": "ping"}`))
 			if err != nil {
 				log.Println("Failed to send ping:", err)
 			}
