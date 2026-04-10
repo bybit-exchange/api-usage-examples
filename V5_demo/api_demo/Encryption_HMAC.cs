@@ -1,4 +1,3 @@
-﻿
 using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
@@ -14,9 +13,9 @@ namespace Encryption_HMAC
 
         public static void Main()
         {
-            var encryptionTest = new Encryption();
-            encryptionTest.PlaceOrder();
-            encryptionTest.GetOpenOrder();
+            var encryption = new Encryption();
+            encryption.PlaceOrder();
+            encryption.GetOpenOrder();
         }
 
         public void PlaceOrder()
@@ -33,11 +32,11 @@ namespace Encryption_HMAC
                 {"timeInForce", "GTC"}
             };
 
-            string signature = GeneratePostSignature(parameters);
-            string jsonPayload = JsonConvert.SerializeObject(parameters);
+            var signature = GeneratePostSignature(parameters);
+            var jsonPayload = JsonConvert.SerializeObject(parameters);
 
             using var client = new HttpClient();
-            HttpRequestMessage request = new(HttpMethod.Post, "https://api-testnet.bybit.com/v5/order/create")
+            var request = new HttpRequestMessage(HttpMethod.Post, "https://api-testnet.bybit.com/v5/order/create")
             {
                 Content = new StringContent(jsonPayload, Encoding.UTF8, "application/json")
             };
@@ -60,8 +59,8 @@ namespace Encryption_HMAC
                 {"symbol", "BTCUSDT"}
             };
 
-            string signature = GenerateGetSignature(parameters);
-            string queryString = GenerateQueryString(parameters);
+            var signature = GenerateGetSignature(parameters);
+            var queryString = GenerateQueryString(parameters);
 
             using var client = new HttpClient();
             var request = new HttpRequestMessage(HttpMethod.Get, $"https://api-testnet.bybit.com/v5/order/realtime?{queryString}");
@@ -77,8 +76,8 @@ namespace Encryption_HMAC
 
         private static string GeneratePostSignature(IDictionary<string, object> parameters)
         {
-            string paramJson = JsonConvert.SerializeObject(parameters);
-            string rawData = Timestamp + ApiKey + RecvWindow + paramJson;
+            var paramJson = JsonConvert.SerializeObject(parameters);
+            var rawData = Timestamp + ApiKey + RecvWindow + paramJson;
 
             using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(ApiSecret));
             var signature = hmac.ComputeHash(Encoding.UTF8.GetBytes(rawData));
@@ -87,8 +86,8 @@ namespace Encryption_HMAC
 
         private static string GenerateGetSignature(Dictionary<string, object> parameters)
         {
-            string queryString = GenerateQueryString(parameters);
-            string rawData = Timestamp + ApiKey + RecvWindow + queryString;
+            var queryString = GenerateQueryString(parameters);
+            var rawData = Timestamp + ApiKey + RecvWindow + queryString;
 
             return ComputeSignature(rawData);
         }
@@ -96,7 +95,7 @@ namespace Encryption_HMAC
         private static string ComputeSignature(string data)
         {
             using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(ApiSecret));
-            byte[] signature = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
+            var signature = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
             return BitConverter.ToString(signature).Replace("-", "").ToLower();
         }
 

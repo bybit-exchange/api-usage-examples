@@ -1,49 +1,47 @@
 const crypto = require('crypto');
 const axios = require('axios');
 
-url='https://api-testnet.bybit.com';
+const url = 'https://api-testnet.bybit.com';
+const apiKey = 'xxxxxxxxxx';
+const secret = 'xxxxxxxxxxxxxxxxxxx';
+const recvWindow = 5000;
+const timestamp = Date.now().toString();
 
-var apiKey = "xxxxxxxxxx";
-var secret = "xxxxxxxxxxxxxxxxxxx";
-var recvWindow = 5000;
-var timestamp = Date.now().toString();
-
-function getSignature(parameters, secret) {
-    return crypto.createHmac('sha256', secret).update(timestamp + apiKey + recvWindow + parameters).digest('hex');
+function getSignature(parameters, secretKey) {
+    return crypto.createHmac('sha256', secretKey).update(timestamp + apiKey + recvWindow + parameters).digest('hex');
 }
 
-async function http_request(endpoint,method,data,Info) {
-    var sign=getSignature(data,secret);
-    var fullendpoint;
+async function httpRequest(endpoint, method, data, info) {
+    const sign = getSignature(data, secret);
+    let fullEndpoint;
 
-    // Build the request URL based on the method
     if (method === "POST") {
-        fullendpoint = url + endpoint;
+        fullEndpoint = url + endpoint;
     } else {
-        fullendpoint = url + endpoint + "?" + data;
+        fullEndpoint = url + endpoint + "?" + data;
         data = "";
     }
 
-    var headers = {
+    const headers = {
         'X-BAPI-SIGN-TYPE': '2',
         'X-BAPI-SIGN': sign,
         'X-BAPI-API-KEY': apiKey,
         'X-BAPI-TIMESTAMP': timestamp,
-        'X-BAPI-RECV-WINDOW': recvWindow.toString()  
+        'X-BAPI-RECV-WINDOW': recvWindow.toString()
     };
 
     if (method === "POST") {
         headers['Content-Type'] = 'application/json; charset=utf-8';
     }
 
-    var config = {
+    const config = {
         method: method,
-        url: fullendpoint,
+        url: fullEndpoint,
         headers: headers,
         data: data
     };
 
-    console.log(Info + " Calling....");
+    console.log(info + " Calling....");
     await axios(config)
     .then(function (response) {
         console.log(JSON.stringify(response.data));
@@ -54,23 +52,19 @@ async function http_request(endpoint,method,data,Info) {
 }
 
 //Create Order
-async function TestCase()
-{
-endpoint="/v5/order/create"
-const orderLinkId = crypto.randomBytes(16).toString("hex");
-var data = '{"category":"linear","symbol": "BTCUSDT","side": "Buy","positionIdx": 0,"orderType": "Limit","qty": "0.001","price": "10000","timeInForce": "GTC","orderLinkId": "' + orderLinkId + '"}';
-await http_request(endpoint,"POST",data,"Create");
+async function testCase() {
+    let endpoint = "/v5/order/create";
+    const orderLinkId = crypto.randomBytes(16).toString("hex");
+    let data = '{"category":"linear","symbol": "BTCUSDT","side": "Buy","positionIdx": 0,"orderType": "Limit","qty": "0.001","price": "10000","timeInForce": "GTC","orderLinkId": "' + orderLinkId + '"}';
+    await httpRequest(endpoint, "POST", data, "Create");
 
-//Get unfilled Order List
-endpoint="/v5/order/realtime"
-var data = 'category=linear&settleCoin=USDT';
-await http_request(endpoint,"GET",data,"Order List");
+    endpoint = "/v5/order/realtime";
+    data = 'category=linear&settleCoin=USDT';
+    await httpRequest(endpoint, "GET", data, "Order List");
 
-//Cancel order
-endpoint="/v5/order/cancel"
-var data = '{"category":"linear","symbol": "BTCUSDT","orderLinkId": "'+orderLinkId+'"}';
-await http_request(endpoint,"POST",data,"Cancel");
+    endpoint = "/v5/order/cancel";
+    data = '{"category":"linear","symbol": "BTCUSDT","orderLinkId": "' + orderLinkId + '"}';
+    await httpRequest(endpoint, "POST", data, "Cancel");
 }
 
-//Create, List and Cancel Orders
-TestCase()
+testCase();

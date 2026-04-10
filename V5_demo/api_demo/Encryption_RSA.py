@@ -1,45 +1,44 @@
-import requests
-import time
-import hashlib
-import uuid
-from Crypto.Hash import SHA256  # install pycryptodome libaray
-from Crypto.Signature import PKCS1_v1_5
-from Crypto.PublicKey import RSA
 import base64
+import json
+import time
+import uuid
 
-api_key='XXXXXXXXXX'
-rsa_private_key_path = '/Users/XXXXXXXXXX/private.pem' # use absolute path
+import requests
+from Crypto.Hash import SHA256
+from Crypto.PublicKey import RSA
+from Crypto.Signature import PKCS1_v1_5
 
-httpClient=requests.Session()
-recv_window=str(5000)
-url="https://api-testnet.bybit.com" # Testnet endpoint
+API_KEY = "XXXXXXXXXX"
+RSA_PRIVATE_KEY_PATH = "/Users/XXXXXXXXXX/private.pem"
 
-def HTTP_Request(endPoint,method,payload,Info):
+HTTP_CLIENT = requests.Session()
+RECV_WINDOW = str(5000)
+URL = "https://api-testnet.bybit.com"
+
+
+def http_request(endpoint, method, payload, info):
     global time_stamp
-    time_stamp=str(int(time.time() * 10 ** 3))
-    signature=genSignature(payload, rsa_private_key_path)
+    time_stamp = str(int(time.time() * 10 ** 3))
+    signature = gen_signature(payload, RSA_PRIVATE_KEY_PATH)
     headers = {
-        'X-BAPI-API-KEY': api_key,
-        'X-BAPI-SIGN': signature,
-        'X-BAPI-SIGN-TYPE': '2',
-        'X-BAPI-TIMESTAMP': time_stamp,
-        'X-BAPI-RECV-WINDOW': recv_window,
-        'Content-Type': 'application/json'
+        "X-BAPI-API-KEY": API_KEY,
+        "X-BAPI-SIGN": signature,
+        "X-BAPI-SIGN-TYPE": "2",
+        "X-BAPI-TIMESTAMP": time_stamp,
+        "X-BAPI-RECV-WINDOW": RECV_WINDOW,
+        "Content-Type": "application/json",
     }
-    if(method=="POST"):
-        response = httpClient.request(method, url+endPoint, headers=headers, data=payload)
+    if method == "POST":
+        response = HTTP_CLIENT.request(method, URL + endpoint, headers=headers, data=payload)
     else:
-        response = httpClient.request(method, url+endPoint+"?"+payload, headers=headers)
+        response = HTTP_CLIENT.request(method, URL + endpoint + "?" + payload, headers=headers)
     print(response.text)
     print(response.status_code)
-    print(Info + " Elapsed Time : " + str(response.elapsed))
+    print(info + " Elapsed Time : " + str(response.elapsed))
 
 
-"""
-Load private_key.pem, then generate base64 signature
-"""
-def genSignature(payload, rsa_private_key_path):
-    param_str= str(time_stamp) + api_key + recv_window + payload
+def gen_signature(payload, rsa_private_key_path):
+    param_str = str(time_stamp) + API_KEY + RECV_WINDOW + payload
 
     with open(rsa_private_key_path, "r") as private_key_obj:
         private_key_str = private_key_obj.read()
@@ -49,21 +48,38 @@ def genSignature(payload, rsa_private_key_path):
 
     return base64.b64encode(signature).decode()
 
-#Create Order
-endpoint="/v5/order/create"
-method="POST"
-orderLinkId=uuid.uuid4().hex
-params='{"category":"linear","symbol": "BTCUSDT","side": "Buy","positionIdx": 0,"orderType": "Limit","qty": "0.001","price": "10000","timeInForce": "GTC","orderLinkId": "' + orderLinkId + '"}'
-HTTP_Request(endpoint,method,params,"Create")
+endpoint = "/v5/order/create"
+method = "POST"
+order_link_id = uuid.uuid4().hex
+params = json.dumps(
+    {
+        "category": "linear",
+        "symbol": "BTCUSDT",
+        "side": "Buy",
+        "positionIdx": 0,
+        "orderType": "Limit",
+        "qty": "0.001",
+        "price": "10000",
+        "timeInForce": "GTC",
+        "orderLinkId": order_link_id,
+    },
+    separators=(",", ":"),
+)
+http_request(endpoint, method, params, "Create")
 
-#Get unfilled Orders
-endpoint="/v5/order/realtime"
-method="GET"
-params='category=linear&settleCoin=USDT'
-HTTP_Request(endpoint,method,params,"UnFilled")
+endpoint = "/v5/order/realtime"
+method = "GET"
+params = "category=linear&settleCoin=USDT"
+http_request(endpoint, method, params, "UnFilled")
 
-#Cancel Order
-endpoint="/v5/order/cancel"
-method="POST"
-params='{"category":"linear","symbol": "BTCUSDT","orderLinkId": "'+orderLinkId+'"}'
-HTTP_Request(endpoint,method,params,"Cancel")
+endpoint = "/v5/order/cancel"
+method = "POST"
+params = json.dumps(
+    {
+        "category": "linear",
+        "symbol": "BTCUSDT",
+        "orderLinkId": order_link_id,
+    },
+    separators=(",", ":"),
+)
+http_request(endpoint, method, params, "Cancel")
