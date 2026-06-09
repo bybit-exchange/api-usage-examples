@@ -5,6 +5,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.Response
+
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 import java.io.IOException
@@ -13,126 +14,93 @@ import java.security.NoSuchAlgorithmException
 import java.time.ZonedDateTime
 import java.{lang, util}
 
-
-/**
- * a sample for how to create & get an order for contract v5 - Linear perpetual
- */
 object Encryption {
-  val API_KEY = "xxxxxxxxxx"
-  val API_SECRET = "xxxxxxxxxxxxxxxx"
-  val TIMESTAMP: String = ZonedDateTime.now.toInstant.toEpochMilli.toString
-  val RECV_WINDOW = "5000"
+  val ApiKey = "xxxxxxxxxx"
+  val ApiSecret = "xxxxxxxxxxxxxxxx"
+  val Timestamp: String = ZonedDateTime.now.toInstant.toEpochMilli.toString
+  val RecvWindow = "5000"
 
   @throws[NoSuchAlgorithmException]
   @throws[InvalidKeyException]
   def main(args: Array[String]): Unit = {
-    val encryptionTest = new Encryption
-    encryptionTest.placeOrder()
-    encryptionTest.getOpenOrder();
+    val encryption = new Encryption
+    encryption.placeOrder()
+    encryption.getOpenOrder()
   }
 
-  /**
-   * The way to generate the sign for POST requests
-   *
-   * @param params : Map input parameters
-   * @return signature used to be a parameter in the header
-   * @throws NoSuchAlgorithmException
-   * @throws InvalidKeyException
-   */
   @throws[NoSuchAlgorithmException]
   @throws[InvalidKeyException]
-  private def genPostSign(params: util.Map[String, AnyRef]) = {
-    val sha256_HMAC = Mac.getInstance("HmacSHA256")
-    val secret_key = new SecretKeySpec(API_SECRET.getBytes, "HmacSHA256")
-    sha256_HMAC.init(secret_key)
+  private def generatePostSignature(params: util.Map[String, AnyRef]): String = {
+    val sha256Hmac = Mac.getInstance("HmacSHA256")
+    val secretKey = new SecretKeySpec(ApiSecret.getBytes, "HmacSHA256")
+    sha256Hmac.init(secretKey)
     val paramJson = JSON.toJSONString(params)
-    val sb = TIMESTAMP + API_KEY + RECV_WINDOW + paramJson
-    bytesToHex(sha256_HMAC.doFinal(sb.getBytes))
+    val payload = Timestamp + ApiKey + RecvWindow + paramJson
+    bytesToHex(sha256Hmac.doFinal(payload.getBytes))
   }
 
-  /**
-   * The way to generate the sign for GET requests
-   *
-   * @param params : Map input parameters
-   * @return signature used to be a parameter in the header
-   * @throws NoSuchAlgorithmException
-   * @throws InvalidKeyException
-   */
   @throws[NoSuchAlgorithmException]
   @throws[InvalidKeyException]
-  private def genGetSign(params: util.Map[String, AnyRef]) = {
-    val sb = genQueryStr(params)
-    val queryStr = TIMESTAMP + API_KEY + RECV_WINDOW + sb
-    val sha256_HMAC = Mac.getInstance("HmacSHA256")
-    val secret_key = new SecretKeySpec(API_SECRET.getBytes, "HmacSHA256")
-    sha256_HMAC.init(secret_key)
-    bytesToHex(sha256_HMAC.doFinal(queryStr.getBytes))
+  private def generateGetSignature(params: util.Map[String, AnyRef]): String = {
+    val queryString = generateQueryString(params)
+    val payload = Timestamp + ApiKey + RecvWindow + queryString
+    val sha256Hmac = Mac.getInstance("HmacSHA256")
+    val secretKey = new SecretKeySpec(ApiSecret.getBytes, "HmacSHA256")
+    sha256Hmac.init(secretKey)
+    bytesToHex(sha256Hmac.doFinal(payload.getBytes))
   }
 
-  /**
-   * To convert bytes to hex
-   *
-   * @param hash
-   * @return hex string
-   */
-  private def bytesToHex(hash: Array[Byte]) = {
+  private def bytesToHex(hash: Array[Byte]): String = {
     val hexString = new lang.StringBuilder
-    for (b <- hash) {
-      val hex = Integer.toHexString(0xff & b)
-      if (hex.length == 1) hexString.append('0')
+    for (value <- hash) {
+      val hex = Integer.toHexString(0xff & value)
+      if (hex.length == 1) {
+        hexString.append('0')
+      }
       hexString.append(hex)
     }
     hexString.toString
   }
 
-  /**
-   * To generate query string for GET requests
-   *
-   * @param map
-   * @return
-   */
-  private def genQueryStr(map: util.Map[String, AnyRef]) = {
-    val keySet = map.keySet
-    val iter = keySet.iterator
-    val sb = new lang.StringBuilder
-    while (iter.hasNext) {
-      val key = iter.next
-      sb.append(key).append("=").append(map.get(key)).append("&")
+  private def generateQueryString(map: util.Map[String, AnyRef]): lang.StringBuilder = {
+    val iterator = map.keySet.iterator
+    val query = new lang.StringBuilder
+    while (iterator.hasNext) {
+      val key = iterator.next
+      query.append(key).append("=").append(map.get(key)).append("&")
     }
-    sb.deleteCharAt(sb.length - 1)
-    sb
+    query.deleteCharAt(query.length - 1)
+    query
   }
 }
 
 class Encryption {
-  /**
-   * POST: place a Linear perp order - contract v5
-   */
   @throws[NoSuchAlgorithmException]
   @throws[InvalidKeyException]
   def placeOrder(): Unit = {
-    val map = new util.HashMap[String, AnyRef]
-    map.put("category", "linear")
-    map.put("symbol", "BTCUSDT")
-    map.put("side", "Buy")
-    map.put("positionIdx", 0: java.lang.Integer)
-    map.put("orderType", "Limit")
-    map.put("qty", "0.001")
-    map.put("price", "18900")
-    map.put("timeInForce", "GTC")
-    val signature = Encryption.genPostSign(map)
-    val jsonMap = JSON.toJSONString(map)
+    val params = new util.HashMap[String, AnyRef]
+    params.put("category", "linear")
+    params.put("symbol", "BTCUSDT")
+    params.put("side", "Buy")
+    params.put("positionIdx", 0: java.lang.Integer)
+    params.put("orderType", "Limit")
+    params.put("qty", "0.001")
+    params.put("price", "18900")
+    params.put("timeInForce", "GTC")
+
+    val signature = Encryption.generatePostSignature(params)
+    val jsonPayload = JSON.toJSONString(params)
     val client = new OkHttpClient.Builder().build()
     val mediaType = MediaType.parse("application/json")
-    val body = RequestBody.create(jsonMap, mediaType)
+    val body = RequestBody.create(jsonPayload, mediaType)
     val request = new Request.Builder()
       .url("https://api-testnet.bybit.com/v5/order/create")
       .post(body)
-      .addHeader("X-BAPI-API-KEY", Encryption.API_KEY)
+      .addHeader("X-BAPI-API-KEY", Encryption.ApiKey)
       .addHeader("X-BAPI-SIGN", signature)
       .addHeader("X-BAPI-SIGN-TYPE", "2")
-      .addHeader("X-BAPI-TIMESTAMP", Encryption.TIMESTAMP)
-      .addHeader("X-BAPI-RECV-WINDOW", Encryption.RECV_WINDOW)
+      .addHeader("X-BAPI-TIMESTAMP", Encryption.Timestamp)
+      .addHeader("X-BAPI-RECV-WINDOW", Encryption.RecvWindow)
       .addHeader("Content-Type", "application/json")
       .build()
 
@@ -142,36 +110,29 @@ class Encryption {
       assert(response.body() != null)
       println(response.body().string())
     } catch {
-      case e: Exception => e.printStackTrace()
+      case exception: Exception => exception.printStackTrace()
     }
-
   }
 
-  /**
-   * GET: query unfilled order
-   *
-   * @throws NoSuchAlgorithmException
-   * @throws InvalidKeyException
-   */
   @throws[NoSuchAlgorithmException]
   @throws[InvalidKeyException]
   def getOpenOrder(): Unit = {
-    val map = new util.HashMap[String, AnyRef]
-    map.put("category", "linear")
-    map.put("symbol", "BTCUSDT")
-    map.put("settleCoin", "USDT")
-    val signature = Encryption.genGetSign(map)
-    val sb = Encryption.genQueryStr(map)
-    val client = new OkHttpClient.Builder().build()
+    val params = new util.HashMap[String, AnyRef]
+    params.put("category", "linear")
+    params.put("symbol", "BTCUSDT")
+    params.put("settleCoin", "USDT")
 
+    val signature = Encryption.generateGetSignature(params)
+    val queryString = Encryption.generateQueryString(params)
+    val client = new OkHttpClient.Builder().build()
     val request = new Request.Builder()
-      .url("https://api-testnet.bybit.com/v5/order/realtime?" + sb.toString)
+      .url("https://api-testnet.bybit.com/v5/order/realtime?" + queryString.toString)
       .get()
-      .addHeader("X-BAPI-API-KEY", Encryption.API_KEY)
+      .addHeader("X-BAPI-API-KEY", Encryption.ApiKey)
       .addHeader("X-BAPI-SIGN", signature)
       .addHeader("X-BAPI-SIGN-TYPE", "2")
-      .addHeader("X-BAPI-TIMESTAMP", Encryption.TIMESTAMP)
-      .addHeader("X-BAPI-RECV-WINDOW", Encryption.RECV_WINDOW)
+      .addHeader("X-BAPI-TIMESTAMP", Encryption.Timestamp)
+      .addHeader("X-BAPI-RECV-WINDOW", Encryption.RecvWindow)
       .build()
 
     val call = client.newCall(request)
@@ -180,10 +141,7 @@ class Encryption {
       assert(response.body() != null)
       println(response.body().string())
     } catch {
-      case e: IOException =>
-        e.printStackTrace()
+      case exception: IOException => exception.printStackTrace()
     }
   }
 }
-
-
