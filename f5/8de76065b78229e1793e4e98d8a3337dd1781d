@@ -1,0 +1,23 @@
+legacy_demo/api_demo/Encryption.cs
+  5592f2a944418f39 37,39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.2-bit.10+672fbf0",
+  "base_commit_sha": "f58de76065b78229e1793e4e98d8a3337dd1781d",
+  "prompts": {
+    "5592f2a944418f39": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "89f5b35a-a386-4b3b-8fd6-9e268db9cba5",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "doris-xiao-bybit",
+      "messages": [],
+      "total_additions": 2,
+      "total_deletions": 2,
+      "accepted_lines": 2,
+      "overriden_lines": 0
+    }
+  }
+}
